@@ -1,0 +1,83 @@
+# Learner CI: application checks only. No version/hash gate, no packaging.
+name: App CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: app-ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  governance:
+    # Fast checks without Docker: trace consistency, test-as-spec guard, tool tests.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          # Kiểm đúng commit của PR, không kiểm merge commit tạm (refs/pull/N/merge) vốn không có trailer.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Trace consistency
+        run: python3 scripts/trace_check.py
+      - name: Approved tests changed only with trailer
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/check_approved_tests.py --base "origin/${{ github.base_ref }}"
+      - name: Tool and hook tests
+        run: python3 -m unittest discover -s scripts/tests -v
+  application:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      COMPOSE_PROJECT_NAME: insighthub-sdlc-ci
+      RAG_MODE: fixture
+      LLM_PROVIDER: fixture
+      EMBEDDING_PROVIDER: fixture
+      # Khóa chỉ dùng trong CI cho stack fixture, không phải secret thật.
+      BETTER_AUTH_SECRET: ci-only-not-a-secret-0123456789abcdef
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24.20.0'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Build and start stack
+        run: make up
+      - name: Backend, web and tool tests
+        run: make test
+      - name: Smoke test
+        run: make smoke
+      - name: Eval suites are valid
+        run: for suite in evaluation/harness/suites/*.json; do python3 evaluation/harness/run_eval.py --suite "$suite" --validate || exit 1; done
+      # eval-fixture: kiểm pipeline của tính năng AI ở chế độ fixture, không gọi provider, không cần secret.
+      # Starter để ở chế độ báo cáo. LR-23: khi đã có golden set Summary/Quiz, bỏ continue-on-error để chặn merge.
+      - name: eval-fixture
+        continue-on-error: true
+        run: python3 evaluation/harness/run_eval.py --suite evaluation/harness/suites/fixture-pipeline.json --allow-fixture --min-pass-hat-k 1.0 --output reports/evaluation/ci-fixture.json
+      - name: Install web dependencies
+        run: npm ci --prefix web
+      - name: Playwright E2E
+        run: cd web && npx playwright install --with-deps msedge && npm run test:e2e
+      # Playwright Test (web/e2e). Học viên bổ sung spec hành trình M3.1 ở LR-20.
+      - name: Playwright Test
+        run: cd web && npm run test:pw
+      - name: npm audit
+        run: npm audit --omit=dev --audit-level=high --prefix web
+      # Giữ screenshot, JSON report và trace để chẩn đoán khi E2E fail (log không đủ).
+      - if: failure()
+        name: Upload E2E report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: e2e-report
+          path: |
+            reports/e2e/
+            web/playwright-report/
+            web/test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+      - if: always()
+        name: Tear down
+        run: docker compose --profile checks down --volumes --remove-orphans

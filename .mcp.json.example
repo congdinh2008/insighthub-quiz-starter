@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "insighthub-db": {
+      "command": "uv",
+      "args": [
+        "run", "--no-project", "--python", "3.12",
+        "--with", "mcp==2.2.0",
+        "--with", "psycopg[binary]==3.3.5",
+        "tools/mcp/insighthub_db_readonly.py"
+      ],
+      "env": {
+        "DB_PORT": "${DB_PORT:-5433}"
+      }
+    }
+  }
+}

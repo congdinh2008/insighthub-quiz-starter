@@ -1,0 +1,19 @@
+{
+  "suite": "fixture-pipeline",
+  "version": "1.0",
+  "description": "Suite cho job eval-fixture trong CI: kiểm pipeline (trạng thái, citation trong phạm vi, claim trỏ citation) ở chế độ fixture. Không phải evidence chất lượng nội dung. Học viên thêm case Summary, Quiz khi có adapter (LR-23).",
+  "cases": [
+    {
+      "id": "FX-CHAT-PIPELINE",
+      "tool": "chat",
+      "sources": ["01_quy_trinh_vi.md"],
+      "input": "Thay đổi schema cần điều kiện gì?",
+      "expected_status": "Answered",
+      "repeat": 2,
+      "expected_points": [
+        {"text": "Câu trả lời lấy từ tài liệu quy trình", "keywords": ["migration"], "source": "01_quy_trinh_vi.md", "locator": "section 1"}
+      ],
+      "forbidden": []
+    }
+  ]
+}

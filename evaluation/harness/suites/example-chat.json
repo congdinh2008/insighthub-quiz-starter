@@ -1,0 +1,30 @@
+{
+  "suite": "example-chat",
+  "version": "1.0",
+  "description": "Ví dụ cấu trúc golden set cho hỏi đáp trên corpus Starter. Học viên tạo suite riêng cho Chat, Summary, Quiz (12 lượt nội dung theo LR-23) và cố định expected trước khi chạy.",
+  "cases": [
+    {
+      "id": "EX-CHAT-GROUNDED",
+      "tool": "chat",
+      "sources": ["01_quy_trinh_vi.md"],
+      "input": "Thay đổi schema cần điều kiện gì?",
+      "expected_status": "Answered",
+      "repeat": 2,
+      "expected_points": [
+        {"text": "Dùng forward migration", "keywords": ["forward migration"], "source": "01_quy_trinh_vi.md", "locator": "section 1"},
+        {"text": "Có bằng chứng giữ dữ liệu", "keywords": ["dữ liệu"], "source": "01_quy_trinh_vi.md", "locator": "section 1"},
+        {"text": "Không xóa volume để nâng cấp", "keywords": ["volume"], "source": "01_quy_trinh_vi.md", "locator": "section 2"}
+      ],
+      "forbidden": []
+    },
+    {
+      "id": "EX-CHAT-NOEVIDENCE",
+      "tool": "chat",
+      "sources": ["01_quy_trinh_vi.md"],
+      "input": "Giá cổ phiếu của công ty hôm nay là bao nhiêu?",
+      "expected_status": "NoEvidence",
+      "repeat": 1,
+      "forbidden": []
+    }
+  ]
+}

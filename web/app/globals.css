@@ -1,0 +1,84 @@
+/* InsightHub UI foundation (learner-r1.3): Tailwind CSS v4 và design token dùng chung.
+ * Token khớp với design/prototype/_base/tokens.css để prototype HTML và code dùng cùng giá trị
+ * (kiểm bằng tests/tokens.test.mjs). Độ tương phản chữ thường >= 4,5:1, viền điều khiển >= 3:1
+ * trên nền chính. Không dùng màu làm tín hiệu duy nhất: trạng thái luôn có chữ hoặc biểu tượng.
+ * Xem docs/UI_Foundation.md. */
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "./demo.css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.75rem;
+  --background: #0b1120;
+  --foreground: #e6e9ef;
+  --card: #111a2e;
+  --card-foreground: #e6e9ef;
+  --popover: #111a2e;
+  --popover-foreground: #e6e9ef;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --secondary: #1a2540;
+  --secondary-foreground: #e6e9ef;
+  --muted: #16203a;
+  --muted-foreground: #9aa7bd;
+  --accent: #1e3a5f;
+  --accent-foreground: #e6e9ef;
+  --destructive: #c9343a;
+  --destructive-foreground: #ffffff;
+  --border: #24304a;
+  --input: #6b7a99;
+  --ring: #4f9cf9;
+  --warning: #d29922;
+  --status-ready: #3fb950;
+  --status-processing: #4f9cf9;
+  --status-failed: #f85149;
+  --status-noevidence: #a78bfa;
+}
+
+@theme inline {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-warning: var(--warning);
+  --color-status-ready: var(--status-ready);
+  --color-status-processing: var(--status-processing);
+  --color-status-failed: var(--status-failed);
+  --color-status-noevidence: var(--status-noevidence);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/60;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    min-height: 100vh;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+}

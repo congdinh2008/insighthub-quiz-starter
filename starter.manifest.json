@@ -1,0 +1,21 @@
+{
+  "name": "InsightHub Starter",
+  "version": "1.0.0-rc.3",
+  "program": "B2B_C07_SDLC_with_AI",
+  "requirements_baseline": "docs/learner/02_SRS_InsightHub_v1.1.md",
+  "requirements_source": "04_Requirements/SRS_InsightHub_v1.1_ISO29148_20261004.md",
+  "learner_requirements": "docs/learner/01_Requirements_InsightHub.md",
+  "api_schema_reference": "docs/learner/03_API_Schema_Reference_v1.1.zip",
+  "documentation_revision": "20261015",
+  "runtime_reference_commit": "3335e2b67077b09af21e4c9f0ee539fdc9464096",
+  "default_mode": "fixture",
+  "release_gate": "runtime-reference-verified; updated-documentation; classroom-pilot-pending",
+  "student_scope": [
+    "quiz-feature-slice",
+    "ai-job-quiz",
+    "access-control-ab",
+    "local-sandbox-release-and-recovery",
+    "change-request-r1.1"
+  ],
+  "learner_release": "learner-r2.0"
+}

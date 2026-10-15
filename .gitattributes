@@ -1,0 +1,21 @@
+# Normalize text to LF in the repository and in every checkout (Windows/WSL/macOS/Linux).
+* text=auto eol=lf
+
+# Binary assets: never convert or diff as text.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.dump binary
+
+# Byte-exact files: their SHA-256 is pinned by the API/Schema Reference manifest,
+# AEV evidence or milestone evidence. Keep bytes exactly as committed.
+docs/learner_*/02_SRS_*.md -text
+evaluation/corpus/** -text
+sample-docs/** -text

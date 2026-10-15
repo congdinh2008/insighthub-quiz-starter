@@ -1,0 +1,51 @@
+# --- Secrets ---
+.env
+.env.*
+!.env.example
+secrets/
+.mcp.json
+.claude/settings.local.json
+*.pem
+*.key
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# --- Node / Next.js ---
+node_modules/
+.next/
+out/
+npm-debug.log*
+test-results/
+playwright-report/
+yarn-error.log*
+
+# --- IDE / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Docker ---
+*.log
+
+# --- Logs / scratch ---
+tmp/
+*.tmp
+
+# Local scratch reports; curated evidence may be committed after review
+reports/
+dist/
+*.tsbuildinfo
+
+# Archive receipt is provenance, not source for a rebuilt archive.
+PACKAGE_MANIFEST.json
+
+# Next.js regenerates this file on build/dev (content differs per mode)
+next-env.d.ts

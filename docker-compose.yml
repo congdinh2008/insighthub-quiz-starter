@@ -1,0 +1,140 @@
+# Developer starter: synchronous API, web and database supplied for local practice.
+name: insighthub-sdlc
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.2-pg16@sha256:00ba258a66dac104fd5171074a0084462a64a1369d8513f3d0a634e2f24d15bc
+    environment:
+      POSTGRES_USER: insighthub
+      POSTGRES_PASSWORD: insighthub
+      POSTGRES_DB: insighthub
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    # Chỉ mở trên localhost cho MCP chỉ đọc (role insighthub_readonly, LR-05).
+    ports: ["127.0.0.1:${DB_PORT:-5433}:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U insighthub -d insighthub"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    mem_limit: 768m
+  api:
+    build: ./api
+    environment:
+      CORS_ORIGINS: '["http://localhost:${WEB_PORT:-3107}","http://127.0.0.1:${WEB_PORT:-3107}"]'
+      DATABASE_URL: postgresql://insighthub:insighthub@postgres:5432/insighthub
+      RAG_MODE: ${RAG_MODE:-fixture}
+      # Giả lập lỗi provider ở chế độ fixture, ví dụ deepseek:timeout (docs/AI_Job_Framework.md mục 6).
+      AI_FIXTURE_FAULTS: ${AI_FIXTURE_FAULTS:-}
+      RAG_PROFILE: ${RAG_PROFILE:-}
+      LLM_PROVIDER: ${LLM_PROVIDER:-}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-}
+      RERANKER_PROVIDER: ${RERANKER_PROVIDER:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-}
+      DEEPSEEK_CHAT_MODEL: ${DEEPSEEK_CHAT_MODEL:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-}
+      LLM_MAX_TOKENS: ${LLM_MAX_TOKENS:-}
+      EMBEDDING_DIM: ${EMBEDDING_DIM:-}
+      EMBEDDING_REVISION: ${EMBEDDING_REVISION:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_CHAT_MODEL: ${GEMINI_CHAT_MODEL:-}
+      GEMINI_EMBEDDING_MODEL: ${GEMINI_EMBEDDING_MODEL:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_CHAT_MODEL: ${ANTHROPIC_CHAT_MODEL:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
+      OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL:-}
+      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-}
+      VOYAGE_API_KEY: ${VOYAGE_API_KEY:-}
+      VOYAGE_EMBEDDING_MODEL: ${VOYAGE_EMBEDDING_MODEL:-}
+      COHERE_API_KEY: ${COHERE_API_KEY:-}
+      COHERE_RERANKER_MODEL: ${COHERE_RERANKER_MODEL:-}
+      LOCAL_RERANKER_URL: ${LOCAL_RERANKER_URL:-}
+      LOCAL_RERANKER_MODEL: ${LOCAL_RERANKER_MODEL:-}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-}
+      OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-}
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-}
+      PROVIDER_TIMEOUT_SECONDS: ${PROVIDER_TIMEOUT_SECONDS:-}
+      PROVIDER_RETRY_ATTEMPTS: ${PROVIDER_RETRY_ATTEMPTS:-}
+      RERANKER_TIMEOUT_SECONDS: ${RERANKER_TIMEOUT_SECONDS:-}
+      RETRIEVAL_TOP_K: ${RETRIEVAL_TOP_K:-}
+      RETRIEVAL_CANDIDATE_K: ${RETRIEVAL_CANDIDATE_K:-}
+      RETRIEVAL_MIN_SIMILARITY: ${RETRIEVAL_MIN_SIMILARITY:-}
+      RETRIEVAL_MAX_CHUNKS_PER_DOCUMENT: ${RETRIEVAL_MAX_CHUNKS_PER_DOCUMENT:-}
+      CONTEXT_MAX_TOKENS: ${CONTEXT_MAX_TOKENS:-}
+      RERANKER_TOP_N: ${RERANKER_TOP_N:-}
+      INGESTION_TIMEOUT_SECONDS: ${INGESTION_TIMEOUT_SECONDS:-}
+      CHAT_TIMEOUT_SECONDS: ${CHAT_TIMEOUT_SECONDS:-}
+      MAX_EXTRACTED_CHARS: ${MAX_EXTRACTED_CHARS:-}
+      MAX_PDF_PAGES: ${MAX_PDF_PAGES:-}
+      EXPOSE_DEBUG_CONTEXTS: ${EXPOSE_DEBUG_CONTEXTS:-}
+      AI_DATA_POLICY_URL: ${AI_DATA_POLICY_URL:-}
+      AI_DATA_USAGE_NOTICE: ${AI_DATA_USAGE_NOTICE:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      MIGRATION_PATH: /app/migrations
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Đặt BETTER_AUTH_SECRET trong .env, xem GETTING_STARTED}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports: ["127.0.0.1:${API_PORT:-8107}:8000"]
+    depends_on:
+      postgres: {condition: service_healthy}
+    mem_limit: 1g
+  web:
+    build: ./web
+    environment:
+      API_INTERNAL_URL: http://api:8000
+      MUTATION_ALLOWED_ORIGINS: "http://localhost:${WEB_PORT:-3107},http://127.0.0.1:${WEB_PORT:-3107}"
+      # Auth scaffold: Better Auth chạy trong Next.js, lưu phiên ở PostgreSQL của ứng dụng.
+      DATABASE_URL: postgresql://insighthub:insighthub@postgres:5432/insighthub
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Đặt BETTER_AUTH_SECRET trong .env, xem GETTING_STARTED}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:${WEB_PORT:-3107}}
+      SMTP_HOST: ${WEB_SMTP_HOST:-mailpit}
+      SMTP_PORT: ${WEB_SMTP_PORT:-1025}
+      # Tùy chọn gửi thư thật (Gmail App Password), xem GETTING_STARTED. Mặc định trống: Mailpit không cần xác thực.
+      SMTP_USER: ${WEB_SMTP_USER:-}
+      SMTP_PASSWORD: ${WEB_SMTP_PASSWORD:-}
+      SMTP_SECURE: ${WEB_SMTP_SECURE:-false}
+      MAIL_FROM: ${MAIL_FROM:-InsightHub <no-reply@insighthub.local>}
+    ports: ["127.0.0.1:${WEB_PORT:-3107}:3000"]
+    depends_on:
+      api: {condition: service_healthy}
+      postgres: {condition: service_healthy}
+    mem_limit: 512m
+  web-check:
+    profiles: ["checks"]
+    build:
+      context: ./web
+      target: builder
+    command: ["sh", "-c", "npm run typecheck && npm test"]
+    environment:
+      NEXT_TELEMETRY_DISABLED: "1"
+    # tests/tokens.test.mjs đối chiếu token của web với design/prototype/_base (nằm ngoài build context ./web).
+    volumes:
+      - ./design:/design:ro
+  mailpit:
+    # Local mail catcher for Auth/Email practice. Start with: make mail-up
+    image: axllent/mailpit:v1.31.2@sha256:74d609a42ec279aa63c6b4622a6fa9b5408d1ad5b1d76a1c4be40a265ce0863d
+    profiles: ["mail"]
+    environment:
+      MP_MAX_MESSAGES: "500"
+    ports:
+      - "127.0.0.1:${MAIL_SMTP_PORT:-1025}:1025"
+      - "127.0.0.1:${MAIL_UI_PORT:-8025}:8025"
+    mem_limit: 128m
+  ollama:
+    image: ollama/ollama:0.33.3@sha256:32931b46719f673c05fdbaa81ccb26da18ea4a1c57590a754874ab28ba269eb2
+    profiles: ["ollama"]
+    volumes: ["ollama-data:/root/.ollama"]
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    # CPU container is optional. On macOS prefer native Ollama for Metal.
+volumes:
+  pgdata:
+  ollama-data:

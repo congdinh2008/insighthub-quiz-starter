@@ -1,0 +1,78 @@
+/* InsightHub prototype base: style tối thiểu cho prototype HTML, cùng token với web/.
+ * Dùng: <link rel="stylesheet" href="../_base/tokens.css"> rồi <link rel="stylesheet" href="../_base/base.css">.
+ * Class bám theo component của web/components/ui để khi code ở M3 ánh xạ 1-1 (xem docs/UI_Foundation.md mục 4).
+ * Đây là artifact thiết kế: không import vào web/, không gọi API thật, không chứa dữ liệu thật. */
+
+*, *::before, *::after { box-sizing: border-box; border-color: var(--border); }
+
+html { color-scheme: dark; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+
+a { color: var(--status-processing); }
+
+/* App shell (khớp web/app/layout.tsx) */
+.skip-link { position: absolute; left: var(--space-4); top: -100px; padding: var(--space-2) var(--space-4); background: var(--primary); color: var(--primary-foreground); border-radius: var(--radius-md); z-index: 50; }
+.skip-link:focus { top: var(--space-2); }
+.app-header { position: sticky; top: 0; display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); height: 3.5rem; padding: 0 var(--space-4); border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--background) 92%, transparent); }
+.app-main { max-width: 80rem; margin: 0 auto; padding: var(--space-6) var(--space-4); }
+
+/* Button (components/ui/button.tsx) */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); height: 2.5rem; padding: 0 var(--space-4); border: 1px solid transparent; border-radius: var(--radius-md); background: var(--primary); color: var(--primary-foreground); font: inherit; font-size: var(--text-sm); font-weight: 500; cursor: pointer; }
+.btn:hover { background: color-mix(in srgb, var(--primary) 90%, black); }
+.btn[disabled], .btn[aria-busy="true"] { opacity: .5; pointer-events: none; }
+.btn-outline { background: transparent; color: var(--foreground); border-color: var(--input); }
+.btn-outline:hover, .btn-ghost:hover { background: var(--accent); }
+.btn-secondary { background: var(--secondary); color: var(--secondary-foreground); }
+.btn-ghost { background: transparent; color: var(--foreground); }
+.btn-destructive { background: var(--destructive); color: var(--destructive-foreground); }
+.btn-sm { height: 2.25rem; padding: 0 var(--space-3); }
+
+/* Form (components/ui/form-field.tsx): nhãn luôn hiển thị, lỗi nối bằng aria-describedby */
+.field { display: grid; gap: var(--space-2); margin-bottom: var(--space-4); }
+.field label { font-size: var(--text-sm); font-weight: 500; }
+.field .hint { font-size: var(--text-sm); color: var(--muted-foreground); }
+.field .error { font-size: var(--text-sm); color: var(--status-failed); }
+.field .hint, .field .error { margin: 0; }
+.input, .textarea { width: 100%; min-height: 2.5rem; padding: var(--space-2) var(--space-3); border: 1px solid var(--input); border-radius: var(--radius-md); background: transparent; color: var(--foreground); font: inherit; font-size: var(--text-sm); }
+.input[aria-invalid="true"], .textarea[aria-invalid="true"] { border-color: var(--status-failed); }
+.textarea { min-height: 5rem; resize: vertical; }
+
+/* Card (components/ui/card.tsx) */
+.card { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card); color: var(--card-foreground); padding: var(--space-6); }
+.card-title { margin: 0 0 var(--space-2); font-size: var(--text-lg); font-weight: 600; }
+.card-description { margin: 0; color: var(--muted-foreground); font-size: var(--text-sm); }
+
+/* StatusBadge (components/ui/status-badge.tsx): luôn có chữ và biểu tượng, không chỉ dùng màu */
+.status { display: inline-flex; align-items: center; gap: var(--space-1); padding: 0.125rem 0.625rem; border: 1px solid; border-radius: 999px; font-size: var(--text-xs); font-weight: 500; }
+.status[data-status="Pending"] { color: var(--warning); }
+.status[data-status="Processing"] { color: var(--status-processing); }
+.status[data-status="Ready"], .status[data-status="Succeeded"] { color: var(--status-ready); }
+.status[data-status="NoEvidence"] { color: var(--status-noevidence); }
+.status[data-status="Failed"] { color: var(--status-failed); }
+
+/* Feedback (components/ui/feedback.tsx) */
+.alert { display: flex; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--muted); font-size: var(--text-sm); }
+.alert-destructive { border-color: color-mix(in srgb, var(--status-failed) 50%, transparent); }
+.alert-warning { border-color: color-mix(in srgb, var(--warning) 50%, transparent); }
+.empty { display: grid; justify-items: center; gap: var(--space-2); padding: var(--space-8) var(--space-4); border: 1px dashed var(--border); border-radius: var(--radius-lg); color: var(--muted-foreground); text-align: center; }
+.skeleton { border-radius: var(--radius-md); background: var(--muted); animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .5; } }
+@media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
+
+/* Dialog: dùng phần tử <dialog> gốc để có Escape và bẫy focus ở prototype; code dùng components/ui/dialog.tsx */
+dialog { max-width: 32rem; width: calc(100% - 2rem); padding: var(--space-6); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--popover); color: var(--popover-foreground); }
+dialog::backdrop { background: rgb(0 0 0 / .6); }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }

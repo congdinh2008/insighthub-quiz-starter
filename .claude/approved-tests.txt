@@ -1,0 +1,8 @@
+# Test đã duyệt theo test-as-spec (LR-13). Mỗi dòng là một glob tính từ gốc repo.
+# Hook .claude/hooks/protect_approved_tests.py chặn agent sửa các file khớp;
+# CI scripts/check_approved_tests.py yêu cầu commit sửa các file này có trailer
+# "Test-Change-Approved: <lý do>". Thêm pattern (duyệt test mới) không cần trailer;
+# xóa pattern (bỏ bảo vệ) cần trailer.
+# Ví dụ (bỏ dấu # khi đã duyệt):
+# api/tests/test_quiz_attempt_api.py
+# web/tests/quiz-*.test.mjs

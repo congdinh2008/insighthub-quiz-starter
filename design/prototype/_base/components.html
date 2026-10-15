@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>InsightHub prototype base: component mẫu</title>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="base.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Bỏ qua đến nội dung chính</a>
+  <header class="app-header">
+    <strong>InsightHub</strong>
+    <button class="btn btn-ghost btn-sm" type="button">a@insighthub.test</button>
+  </header>
+  <main id="main" class="app-main">
+    <h1>Component mẫu cho prototype HTML</h1>
+    <p>Trang này chỉ minh họa component nền, không phải màn hình InsightHub. Màn hình, IA và nội dung nghiệp vụ là bài của học viên (LR-10).</p>
+
+    <section class="card" aria-labelledby="h-buttons">
+      <h2 id="h-buttons" class="card-title">Button</h2>
+      <button class="btn" type="button">Mặc định</button>
+      <button class="btn btn-outline" type="button">Outline</button>
+      <button class="btn btn-secondary" type="button">Secondary</button>
+      <button class="btn btn-destructive" type="button" id="open-confirm">Xóa (mở dialog)</button>
+      <button class="btn" type="button" aria-busy="true">Đang gửi...</button>
+    </section>
+
+    <section class="card" aria-labelledby="h-form" style="margin-top:1rem">
+      <h2 id="h-form" class="card-title">FormField</h2>
+      <div class="field">
+        <label for="email">Email</label>
+        <input class="input" id="email" type="email" aria-invalid="true" aria-describedby="email-error">
+        <p class="error" id="email-error">Email không hợp lệ.</p>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="h-status" style="margin-top:1rem">
+      <h2 id="h-status" class="card-title">StatusBadge</h2>
+      <span class="status" data-status="Processing"><span aria-hidden="true">◌</span>Đang xử lý</span>
+      <span class="status" data-status="Ready"><span aria-hidden="true">✓</span>Sẵn sàng</span>
+      <span class="status" data-status="NoEvidence"><span aria-hidden="true">i</span>Không đủ căn cứ</span>
+      <span class="status" data-status="Failed"><span aria-hidden="true">✕</span>Thất bại</span>
+    </section>
+
+    <section aria-labelledby="h-feedback" style="margin-top:1rem; display:grid; gap:1rem">
+      <h2 id="h-feedback" class="card-title">Alert, EmptyState, Skeleton</h2>
+      <div class="alert alert-destructive" role="alert">Không thể tải dữ liệu. Thử lại sau.</div>
+      <div class="empty"><strong>Chưa có dữ liệu</strong><span>Thêm mục đầu tiên để bắt đầu.</span></div>
+      <div class="skeleton" style="height:1rem; width:60%" aria-hidden="true"></div>
+    </section>
+
+    <dialog id="confirm" aria-labelledby="confirm-title">
+      <h2 id="confirm-title" class="card-title">Xác nhận xóa</h2>
+      <p class="card-description">Thao tác này không hoàn tác được.</p>
+      <form method="dialog" style="display:flex; gap:.5rem; justify-content:flex-end; margin-top:1rem">
+        <button class="btn btn-outline" value="cancel">Hủy</button>
+        <button class="btn btn-destructive" value="ok">Xóa</button>
+      </form>
+    </dialog>
+  </main>
+  <script>
+    // <dialog> gốc tự xử lý Escape và giữ focus; khi đóng, trả focus về nút đã mở.
+    const opener = document.getElementById('open-confirm');
+    const dialog = document.getElementById('confirm');
+    opener.addEventListener('click', () => dialog.showModal());
+    dialog.addEventListener('close', () => opener.focus());
+  </script>
+</body>
+</html>

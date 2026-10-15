@@ -1,0 +1,12 @@
+name: insighthub-local-reranker
+services:
+  reranker:
+    image: ${TEI_IMAGE:-ghcr.io/huggingface/text-embeddings-inference:cpu-1.9}
+    command: ["--model-id", "${LOCAL_RERANKER_MODEL:-Alibaba-NLP/gte-multilingual-reranker-base}"]
+    ports: ["127.0.0.1:${LOCAL_RERANKER_PORT:-8187}:80"]
+    volumes: ["tei-cache:/data"]
+    environment:
+      HF_HOME: /data
+    restart: unless-stopped
+volumes:
+  tei-cache:
